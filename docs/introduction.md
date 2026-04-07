@@ -5,6 +5,7 @@
 - [Overview of CI/CD Security Challenges](#overview-of-cicd-security-challenges)
 - [Threat Model for CI/CD Pipelines: STRIDE Analysis](#threat-model-for-cicd-pipelines-stride-analysis)
 - [Attack Vectors in CI/CD Environments](#attack-vectors-in-cicd-environments)
+- [CI/CD Attack Tree Analysis](#cicd-attack-tree-analysis)
 - [Real-World CI/CD Breach Examples](#real-world-cicd-breach-examples)
 - [Why Secure-by-Default Pipelines Matter](#why-secure-by-default-pipelines-matter)
 - [Key Concepts](#key-concepts)
@@ -164,6 +165,125 @@ Open-source projects and some enterprise configurations allow external contribut
 ### Artifact Tampering and Registry Poisoning
 
 If an attacker gains write access to an artifact registry, they can replace legitimate build artifacts with malicious versions. Downstream pipelines or deployments that pull these artifacts without integrity verification will deploy attacker-controlled code.
+
+---
+
+## CI/CD Attack Tree Analysis
+
+Attack trees provide a structured decomposition of attack goals into the specific conditions that must be satisfied for an attack to succeed. The following attack trees cover the two highest-impact goals for CI/CD adversaries: injecting malicious code into a production artifact, and exfiltrating secrets from the pipeline environment.
+
+### Attack Tree 1: Inject Malicious Code into a Production Artifact
+
+```
+GOAL: Malicious code in production artifact
+│
+├── [OR] Compromise the build process
+│   ├── [AND] Access to CI/CD platform
+│   │   ├── [OR] Stolen developer credentials with CI access
+│   │   │   ├── Phishing attack on developer
+│   │   │   └── Credential database breach (third-party)
+│   │   ├── [OR] Compromised CI service account
+│   │   │   ├── Long-lived service account key leaked in code/logs
+│   │   │   └── Overpermissioned OIDC token with write scope
+│   │   └── [OR] Compromise of CI platform itself (rare)
+│   │
+│   └── [AND] Ability to modify build outputs
+│       ├── Persistent self-hosted runner (survives between jobs)
+│       └── Writable artifact store without signing enforcement
+│
+├── [OR] Compromise a dependency
+│   ├── [AND] Malicious package in dependency graph
+│   │   ├── [OR] Typosquatting / dependency confusion attack
+│   │   │   └── Public package name matches internal package name
+│   │   ├── [OR] Compromised upstream package maintainer account
+│   │   │   └── Maintainer credentials phished / breached
+│   │   └── [OR] Malicious code in new package version
+│   │       └── Unpinned dependency auto-updates to attacker version
+│   │
+│   └── [AND] Malicious package executed at build time
+│       └── No dependency hash verification during build
+│
+├── [OR] Compromise the source code
+│   ├── [AND] Unauthorized code commit merged to protected branch
+│   │   ├── [OR] Bypass branch protection
+│   │   │   ├── Branch protection misconfigured (allows force push)
+│   │   │   └── Repository admin account compromised
+│   │   └── [OR] Social engineering a code reviewer
+│   │       └── Malicious code disguised in large PR / obfuscated logic
+│   │
+│   └── [AND] Malicious pipeline action executes in build
+│       ├── [OR] Mutable action reference changed by attacker
+│       │   └── Action referenced by tag (not commit SHA)
+│       └── [OR] Malicious action introduced via PR
+│           └── Workflow triggered on pull_request from fork
+│
+└── [OR] Tamper with the artifact after build
+    ├── [AND] Access to artifact repository
+    │   └── Overpermissive registry access credentials
+    │
+    └── [AND] No artifact signing / verification at deployment
+        └── Deployment system does not verify Cosign signatures
+```
+
+**Primary mitigations by attack path:**
+
+| Attack Path | Primary Control | Secondary Control |
+|---|---|---|
+| Compromised developer credential | MFA enforcement; OIDC workload identity | Short-lived tokens; anomaly detection |
+| Malicious dependency | Exact version pinning + hash verification | Private registry mirror; SCA scanning |
+| Dependency confusion | Private registry with scope enforcement | Namespace reservation on public registries |
+| Mutable action reference | Pin all actions to commit SHA | Action allowlist enforcement |
+| Fork PR code execution | Require approval before workflow runs on PRs | Restrict secrets to protected branches |
+| Post-build artifact tampering | Cosign signing at build time | Admission control verifying signatures at deploy |
+
+---
+
+### Attack Tree 2: Exfiltrate Secrets from CI/CD Pipeline
+
+```
+GOAL: Exfiltrate pipeline secrets (cloud credentials, API keys, signing keys)
+│
+├── [OR] Read secrets from pipeline logs
+│   ├── [AND] Secrets printed to logs
+│   │   ├── [OR] Debug logging enabled (set -x, verbose mode)
+│   │   ├── [OR] Error output includes secret values
+│   │   └── [OR] Tool logs request headers with auth tokens
+│   │
+│   └── [AND] Log access available to attacker
+│       ├── Compromised developer account with log access
+│       └── Public repository with publicly visible workflow logs
+│
+├── [OR] Read secrets from build environment directly
+│   ├── [AND] Code execution in CI environment (via any path above)
+│   │
+│   └── [AND] Secrets available in environment
+│       ├── [OR] Secrets in environment variables
+│       │   └── No runtime secret injection (pull at use time)
+│       └── [OR] Secrets accessible via IMDS/metadata service
+│           └── No IMDS hop limit or IP tables block on runners
+│
+├── [OR] Extract secrets from repository
+│   ├── [AND] Secrets committed to repository history
+│   │   └── No pre-commit secret scanning with push protection
+│   │
+│   └── [AND] Read access to repository
+│       └── Compromised account or overpermissive token
+│
+└── [OR] Exfiltrate via pipeline network egress
+    ├── [AND] Secret access achieved (any above path)
+    │
+    └── [AND] Outbound network from runner not controlled
+        └── No egress filtering on CI runner network
+```
+
+**Primary mitigations by attack path:**
+
+| Attack Path | Primary Control | Secondary Control |
+|---|---|---|
+| Secrets in logs | Log secret masking; audit for debug flags | Pre-commit secret scanning |
+| Secrets in environment | Runtime secret injection (fetch at use, not start) | IMDS hop limit (AWS: `--metadata-token-ttl-seconds 0`) |
+| Committed secrets | Pre-commit hooks (Gitleaks); push protection | Git history scanning; immediate rotation on detection |
+| Egress exfiltration | Network egress filtering on runners | OIDC short-lived credentials (nothing to steal long-term) |
 
 ---
 

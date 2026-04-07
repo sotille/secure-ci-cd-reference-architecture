@@ -104,7 +104,10 @@ Use specific sections as targeted reference material during:
 |---|---|---|
 | [Introduction](docs/introduction.md) | CI/CD threat model, attack vectors, breach examples, key concepts | All stakeholders |
 | [Architecture](docs/architecture.md) | Secure pipeline architecture, zero-trust design, environment segregation | Architects, Platform Engineers |
+| [Threat Model](docs/threat-model.md) | STRIDE analysis, MITRE ATT&CK CI/CD scenarios, control-to-threat mapping | Security Engineers, Architects |
 | [Framework](docs/framework.md) | Security controls, SAST/DAST/SCA, secrets, signing, compliance mapping | Security Engineers, DevOps leads |
+| [Pipeline Forensics Playbook](docs/pipeline-forensics-playbook.md) | Investigation procedures for pipeline compromise: evidence preservation, root cause analysis, blast radius assessment, artifact integrity verification | Security Engineers, Incident Responders |
+| [Legacy CI/CD Migration](docs/legacy-cicd-migration.md) | Migration guide from Jenkins, Bamboo, and TeamCity to secure modern pipeline architecture; platform comparison, secrets migration, validation checklist | Platform Engineers, Architects |
 | [Implementation](docs/implementation.md) | GitHub Actions, GitLab CI, Jenkins implementation guides; runner hardening | Platform Engineers, DevOps |
 | [Best Practices](docs/best-practices.md) | 25+ best practices across source, build, test, deploy, secrets, access control | All engineering roles |
 | [Roadmap](docs/roadmap.md) | Phased 0-180 day roadmap, maturity model, metrics, toolchain evolution | Leadership, Program Managers |
@@ -118,8 +121,9 @@ secure-ci-cd-reference-architecture/
 ├── README.md                   # This file
 ├── LICENSE                     # Apache 2.0 license
 └── docs/
-    ├── introduction.md         # Threat model, attack vectors, breach examples
+    ├── introduction.md         # Threat landscape, attack vectors, breach examples
     ├── architecture.md         # Reference architecture with Mermaid diagrams
+    ├── threat-model.md         # STRIDE analysis, ATT&CK CI/CD scenarios, control mapping
     ├── framework.md            # Security controls framework and compliance mapping
     ├── implementation.md       # Platform-specific implementation guides
     ├── best-practices.md       # 25+ best practices by security domain
