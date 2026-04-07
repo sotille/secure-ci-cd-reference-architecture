@@ -7,6 +7,9 @@ Format: `[version] — [date] — [summary of changes]`
 
 ## [Unreleased]
 
+- Added CHANGELOG.md (this file) for version tracking
+- Added "Learning Resources" section to README.md linking to Book 2, techstream-learn labs, and techstream.app
+
 ## [1.0.0] — 2024-01-15
 
 - Initial public release of the Secure CI/CD Reference Architecture
