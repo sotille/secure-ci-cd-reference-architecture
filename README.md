@@ -132,6 +132,17 @@ secure-ci-cd-reference-architecture/
 
 ---
 
+## Learning Resources
+
+The Techstream Book Series and hands-on lab companion extend the concepts in this framework with structured learning, exercises, and configuration walkthroughs.
+
+- **[Book 2: Securing CI/CD & the Software Supply Chain](https://www.techstream.app/learn)** — The primary book volume aligned with this framework. Covers pipeline threat modeling, OIDC keyless authentication, artifact integrity, pipeline forensics, and real-world breach case studies including SolarWinds, Codecov, and PyTorch.
+- **[Hands-On Labs (techstream-learn/book-2-cicd-supply-chain/)](https://www.techstream.app/learn)** — Practical exercises including STRIDE threat modeling for CI/CD pipelines, configuring OIDC federation for GitHub Actions, and detecting secrets in pipeline logs.
+- **[Book Series Overview (VOLUMES.md)](../techstream-books/VOLUMES.md)** — Index of all four Techstream volumes covering DevSecOps foundations, supply chain security, cloud security, and release governance.
+- **[Techstream Platform](https://www.techstream.app)** — The central portal for all Techstream frameworks, documentation, and learning resources.
+
+---
+
 ## Contributing
 
 Contributions are welcome and encouraged. The threat landscape and tooling ecosystem evolve rapidly, and this reference architecture is maintained as a living document.
