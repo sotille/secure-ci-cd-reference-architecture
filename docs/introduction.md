@@ -414,4 +414,157 @@ A security gate configuration that causes a CI pipeline to fail and block progre
 
 ### Provenance
 
+Cryptographically verifiable metadata that records the origin and build history of a software artifact: what source commit was used, what build environment executed the build, what tools were invoked, and what artifact was produced. SLSA provenance attestations are signed by the build system and can be verified at deployment time to confirm an artifact's supply chain integrity. See also: Build provenance (glossary), SLSA.
+
+---
+
+## Lateral Movement in CI/CD Platforms
+
+Lateral movement within CI/CD infrastructure is an underexamined threat category. Once an attacker achieves code execution in one pipeline job, they may be able to pivot to other pipelines, repositories, or cloud environments within the same CI/CD platform.
+
+### Cross-Pipeline Secret Access
+
+CI/CD platforms centralize secrets management as a convenience feature — secrets are stored at the organization or project level and inherited by pipelines. This centralization creates a lateral movement path:
+
+**GitHub Actions — organization-level secrets:**
+```
+Attack scenario:
+1. Attacker achieves code execution in pipeline for repository A (low-security project)
+2. Repository A's workflow has access to organization-level secrets (e.g., PROD_DEPLOY_KEY)
+   because the organization secret was not restricted to specific repositories
+3. Attacker reads PROD_DEPLOY_KEY from the environment and uses it to deploy to production
+
+Defense:
+- Restrict organization secrets to specific repositories (not "All repositories")
+- Use environment-scoped secrets for production credentials
+- Review organization secret access quarterly
+```
+
+**Audit: Identify overly-permissive secret access in GitHub:**
+```bash
+# List organization secrets and their visibility
+gh api /orgs/{org}/actions/secrets \
+  | jq '.secrets[] | {name: .name, visibility: .visibility, selected_repositories_url: .selected_repositories_url}'
+
+# Alert on any secret with visibility == "all" that contains "PROD" or "DEPLOY" in the name
+gh api /orgs/{org}/actions/secrets \
+  | jq '[.secrets[] | select(.visibility == "all") | select(.name | test("PROD|DEPLOY|KEY|TOKEN"; "i"))]'
+```
+
+### CI/CD Platform Privilege Escalation
+
+**GitHub Actions — GITHUB_TOKEN scope abuse:**
+The `GITHUB_TOKEN` automatically granted to every workflow has configurable permissions. Default permissions vary by organization setting. An overly permissive `GITHUB_TOKEN` enables an attacker with code execution to:
+- Write to any branch in the repository
+- Approve pull requests
+- Publish GitHub Releases
+- Invoke repository dispatch events (triggering other workflows)
+
+```yaml
+# INSECURE — broad default permissions
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # No permissions block — inherits default (potentially write-all)
+    steps:
+      - run: ./build.sh
+
+# SECURE — minimal permissions, explicitly declared
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read      # Read source code only
+      packages: write     # Write to GitHub Packages registry
+      id-token: write     # Request OIDC token for cloud auth
+      # All other permissions: none (implicitly denied)
+    steps:
+      - run: ./build.sh
+```
+
+**Enforce minimal permissions at the repository level:**
+```yaml
+# .github/workflows/permissions-policy.yaml
+# Org-level setting: default token permissions = "read" for all repos
+# This workflow documents the explicit permissions needed
+permissions:
+  contents: read
+  # Additional permissions only as needed and documented
+```
+
+**GitLab CI — project token inheritance:**
+GitLab's CI_JOB_TOKEN has project-scoped permissions by default, but `CI_JOB_TOKEN allowlist` must be configured to prevent cross-project token use:
+
+```yaml
+# GitLab project settings → CI/CD → Token Access
+# Restrict which projects can use this project's CI_JOB_TOKEN
+
+# In gitlab-ci.yml, use explicit read-only variables for cross-project references
+variables:
+  READ_ONLY_TOKEN: $CICD_READ_TOKEN  # Dedicated read-only token, not CI_JOB_TOKEN
+```
+
+### Runner Compromise and Persistence
+
+Self-hosted CI/CD runners that are not ephemeral are high-value lateral movement targets. A compromised runner persists between builds, allowing an attacker to:
+- Intercept secrets from subsequent pipeline runs
+- Modify build outputs before they are published
+- Establish persistence on the runner host and use it as a pivot point to internal networks
+
+**Required controls for self-hosted runners:**
+
+```
+Ephemeral runners (create-on-demand, destroy-after-use):
+├── AWS: CodeBuild, GitHub Actions with Just-in-Time runners
+├── GCP: Cloud Build
+├── Azure: Azure Container Instances as ephemeral runners
+└── Self-hosted: Use runner auto-scaling with ephemeral VMs (GitHub Actions Runners Controller)
+
+Network isolation:
+├── Runners must not have access to internal production networks
+├── Runners must not have access to other runners' namespaces
+└── Runners must only communicate outbound to known CI/CD endpoints
+
+Artifact integrity:
+└── Build outputs must be signed before leaving the runner
+    (an output from a compromised runner without signing is undetectable)
+```
+
+**Detect runner persistence attempts (Falco rule):**
+```yaml
+# falco_rules.yaml — detect suspicious processes in CI runner containers
+- rule: CI Runner Reverse Shell Attempt
+  desc: Detect reverse shell or persistence mechanisms in CI runner containers
+  condition: >
+    spawned_process and
+    container and
+    container.label.type = "ci-runner" and
+    (proc.name in (nc, ncat, socat, bash, sh) and
+     proc.args contains "-e" and proc.args contains "/bin/")
+  output: >
+    Possible reverse shell in CI runner (user=%user.name command=%proc.cmdline
+    container=%container.name image=%container.image.repository)
+  priority: CRITICAL
+```
+
+### Supply Chain Pivot: From Repository to Cloud
+
+The most dangerous lateral movement path is from a compromised repository to cloud infrastructure via the CI/CD pipeline's cloud credentials:
+
+```
+Attack chain:
+Malicious PR merged (social engineering or dependency confusion)
+    → Pipeline triggered with malicious code
+    → OIDC token obtained for cloud provider
+    → Cloud API called to: exfiltrate secrets, modify IAM, deploy backdoored infrastructure
+    → Persistence established in cloud environment
+
+Defense chain (every step must hold):
+1. OIDC token scope: token scoped to minimum permissions (read-only for most workflows)
+2. Environment protection: production OIDC only available to protected-branch workflows
+3. Admission control: IaC changes require approval; policy-as-code blocks privilege escalation
+4. CloudTrail/audit: all API calls logged; anomalous calls alert within minutes
+5. Immutable audit: CloudTrail logs written to S3 with Object Lock; cannot be deleted by the pipeline's IAM role
+```
+
 A verifiable record of how a software artifact was produced — including the source repository, commit hash, build system, build inputs, and build configuration. Provenance attestations (as defined by SLSA) allow consumers of artifacts to verify their supply chain integrity.

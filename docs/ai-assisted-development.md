@@ -295,7 +295,11 @@ When AI coding assistants are in use across the engineering organization, the CI
 
 ## Related Documents
 
-- [AI Security Integration Guide](../../devsecops-framework/docs/ai-security.md) — Controls for AI-powered applications (LLMs, RAG, agents)
+- [AI DevSecOps Framework](../../ai-devsecops-framework/docs/introduction.md) — Comprehensive AI security architecture for organizations with AI agents in their delivery pipeline; covers agent authorization, blast radius containment, multi-agent trust, agent audit trail, model supply chain, and the five-level AI Security Maturity Model
+- [AI DevSecOps Framework: Prompt Injection Defense](../../ai-devsecops-framework/docs/prompt-injection-defense.md) — Architectural defenses for indirect prompt injection in CI/CD pipelines (extends C5 above with full architecture patterns)
+- [AI DevSecOps Framework: Developer Environment Controls](../../ai-devsecops-framework/docs/developer-environment-controls.md) — Extended guidance on AI coding assistant policies, slopsquatting prevention, and developer workstation controls
+- [AI DevSecOps Framework: Pipeline Controls](../../ai-devsecops-framework/docs/pipeline-controls.md) — Circuit breaker patterns, approval gates, and AI pipeline step hardening
+- [AI Security Integration Guide](../../devsecops-framework/docs/ai-security.md) — Controls for AI-powered applications (LLMs, RAG, agents, MCP server security)
 - [Secure CI/CD Controls Framework](framework.md) — Full pipeline security controls
 - [SBOM Guide](../../software-supply-chain-security-framework/docs/sbom-guide.md) — SBOM generation captures AI-suggested dependencies alongside human-authored ones
 - [Supply Chain Incident Response Playbook](../../software-supply-chain-security-framework/docs/incident-response-playbook.md) — Response procedures if a hallucinated/slopsquatting package is discovered post-deployment

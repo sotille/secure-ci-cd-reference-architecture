@@ -118,17 +118,29 @@ Use specific sections as targeted reference material during:
 
 ```
 secure-ci-cd-reference-architecture/
-├── README.md                   # This file
-├── LICENSE                     # Apache 2.0 license
+├── README.md                          # This file
+├── LICENSE                            # Apache 2.0 license
 └── docs/
-    ├── introduction.md         # Threat landscape, attack vectors, breach examples
-    ├── architecture.md         # Reference architecture with Mermaid diagrams
-    ├── threat-model.md         # STRIDE analysis, ATT&CK CI/CD scenarios, control mapping
-    ├── framework.md            # Security controls framework and compliance mapping
-    ├── implementation.md       # Platform-specific implementation guides
-    ├── best-practices.md       # 25+ best practices by security domain
-    └── roadmap.md              # Phased roadmap and maturity model
+    ├── introduction.md                # Threat landscape, attack vectors, breach examples
+    ├── architecture.md                # Reference architecture with Mermaid diagrams
+    ├── threat-model.md                # STRIDE analysis, ATT&CK CI/CD scenarios, control mapping
+    ├── framework.md                   # Security controls framework and compliance mapping
+    ├── oidc-federation-guide.md       # Keyless authentication with GitHub Actions, GitLab CI
+    ├── container-registry-security.md # Registry hardening, image signing, policy enforcement
+    ├── pipeline-forensics-playbook.md # Incident investigation: evidence preservation, blast radius
+    ├── legacy-cicd-migration.md       # Migration from Jenkins, Bamboo, TeamCity
+    ├── implementation.md              # Platform-specific implementation guides
+    ├── best-practices.md              # 25+ best practices by security domain
+    └── roadmap.md                     # Phased roadmap and maturity model
 ```
+
+### Related Frameworks
+
+| Framework | Relationship |
+|-----------|-------------|
+| [forensics-and-incident-response-framework](../forensics-and-incident-response-framework/) | Extends pipeline-forensics-playbook.md with full IR playbooks (PL-01–PL-08), evidence chain of custody, and legal hold procedures for pipeline compromise investigations |
+| [software-supply-chain-security-framework](../software-supply-chain-security-framework/) | Covers SLSA, SBOM, and artifact signing in depth; complements this framework's supply chain controls |
+| [secure-pipeline-templates](../secure-pipeline-templates/) | Provides ready-to-use GitHub Actions and GitLab CI templates implementing the controls defined in this architecture |
 
 ---
 
@@ -138,7 +150,7 @@ The Techstream Book Series and hands-on lab companion extend the concepts in thi
 
 - **[Book 2: Securing CI/CD & the Software Supply Chain](https://www.techstream.app/learn)** — The primary book volume aligned with this framework. Covers pipeline threat modeling, OIDC keyless authentication, artifact integrity, pipeline forensics, and real-world breach case studies including SolarWinds, Codecov, and PyTorch.
 - **[Hands-On Labs (techstream-learn/book-2-cicd-supply-chain/)](https://www.techstream.app/learn)** — Practical exercises including STRIDE threat modeling for CI/CD pipelines, configuring OIDC federation for GitHub Actions, and detecting secrets in pipeline logs.
-- **[Book Series Overview (VOLUMES.md)](../techstream-books/VOLUMES.md)** — Index of all four Techstream volumes covering DevSecOps foundations, supply chain security, cloud security, and release governance.
+- **[Book Series Overview (VOLUMES.md)](../techstream-books/VOLUMES.md)** — Index of all five Techstream volumes covering DevSecOps foundations, supply chain security, cloud security, release governance, and AI and agentic systems security.
 - **[Techstream Platform](https://www.techstream.app)** — The central portal for all Techstream frameworks, documentation, and learning resources.
 
 ---
