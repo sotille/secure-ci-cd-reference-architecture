@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+title: "Secure CI/CD Reference Architecture"
+message: "If you reference, cite, or build upon this framework, please cite it as below."
+type: software
+authors:
+  - family-names: Sotille
+    given-names: Felipe
+    affiliation: "TechStream (Independent)"
+    email: "fsotille@gmail.com"
+repository-code: "https://github.com/sotille/secure-ci-cd-reference-architecture"
+url: "https://www.techstream.app"
+license: Apache-2.0
+version: "1.0.0"
+date-released: "2026-05-17"
+abstract: >-
+  Reference architecture for securing CI/CD pipelines: threat modeling, SAST/DAST/SCA integration, secrets management, pipeline IAM, and zero-trust CI/CD design. Aligned with Executive Order 14028 Section 4 and NIST SSDF PW practices.
+keywords:
+  - ci-cd
+  - secure-pipeline
+  - sast
+  - dast
+  - sca
+  - eo-14028
+  - ssdf-pw
+  - zero-trust
