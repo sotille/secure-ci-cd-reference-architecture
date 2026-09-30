@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://techstream.app">
+  <a href="https://dev.felipe.sotille.com/">
     <img src="https://techstream.app/images/techstream-icon.svg" width="72" height="72" alt="TechStream" />
   </a>
 </p>
@@ -7,10 +7,12 @@
 # Secure CI/CD Reference Architecture
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/techstream/secure-ci-cd-reference-architecture)
+[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/sotille/secure-ci-cd-reference-architecture)
 [![Documentation](https://img.shields.io/badge/docs-comprehensive-brightgreen.svg)](docs/)
-[![Maintained](https://img.shields.io/badge/Maintained-yes-green.svg)](https://github.com/techstream/secure-ci-cd-reference-architecture)
+[![Maintained](https://img.shields.io/badge/Maintained-yes-green.svg)](https://github.com/sotille/secure-ci-cd-reference-architecture)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+> **Secure CI/CD Reference Architecture** is an open framework (Apache 2.0) by [Felipe Sotille](https://dev.felipe.sotille.com/cv), Senior DevSecOps Architect & Coach in Brussels, published under Techstream, his consultancy. It covers threat models, architecture patterns and security controls for CI/CD pipelines, cloud-native and enterprise. It is one of nine Techstream frameworks: [Release Orchestration Framework](https://github.com/sotille/release-orchestration-framework), [Software Supply Chain Security Framework](https://github.com/sotille/software-supply-chain-security-framework), [AI DevSecOps Framework](https://github.com/sotille/ai-devsecops-framework), [DevSecOps Framework](https://github.com/sotille/devsecops-framework), [DevSecOps Maturity Model](https://github.com/sotille/devsecops-maturity-model), [Compliance Automation Framework](https://github.com/sotille/compliance-automation-framework), [DevSecOps Transformation Methodology](https://github.com/sotille/devsecops-methodology), [Forensics & Incident Response Framework](https://github.com/sotille/forensics-and-incident-response-framework).
 
 A comprehensive reference architecture for designing, implementing, and operating secure Continuous Integration and Continuous Delivery (CI/CD) pipelines. This repository provides threat models, architecture patterns, security controls, tool-specific implementation guides, and a maturity model for teams seeking to harden their software delivery infrastructure against modern attack vectors.
 
